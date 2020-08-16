@@ -5,3 +5,4 @@ export * from './Loading';
 export * from './Heading';
 export * from './DatePickerInput';
 export * from './DropDown';
+export * from './Card';

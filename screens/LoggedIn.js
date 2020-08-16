@@ -25,7 +25,7 @@ export default class LoggedIn extends Component {
         .then((response) => {
           if (response.data == 'Nema basic info') {
             this.setState({ screenHandler: true, loading: false });
-          }
+          } else this.setState({ loading: false });
         })
         .catch((error) => {
           console.log(error);
@@ -41,7 +41,7 @@ export default class LoggedIn extends Component {
         .then((response) => {
           if (response.data == 'Nema basic info') {
             this.setState({ screenHandler: true, loading: false });
-          }
+          } else this.setState({ loading: false });
         })
         .catch((error) => {
           console.log(error);
@@ -69,7 +69,8 @@ export default class LoggedIn extends Component {
       );
     } else if (this.state.screenHandler) {
       if (this.props.account_type == 'Profesor') return <InitialProfessor />;
-      if (this.props.account_type == 'Student') return <InitialStudent />;
+      if (this.props.account_type == 'Student')
+        return <InitialStudent jwt={this.props.jwt} />;
     }
   }
 }
