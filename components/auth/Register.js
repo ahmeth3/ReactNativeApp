@@ -1,5 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { View, Text, StyleSheet, Image, Platform, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  SafeAreaView,
+  Image,
+  Platform,
+  Alert,
+  KeyboardAvoidingView,
+} from 'react-native';
 import {
   Input,
   TextLink,
@@ -23,7 +33,7 @@ class Register extends Component {
       name_surname: '',
       name: '',
       surname: '',
-      DoB: '',
+      DoB: 'Datum rođenja',
       DoBPost: '',
       studentIdNo: '',
       department: '',
@@ -261,19 +271,19 @@ class Register extends Component {
   }
 
   registerProfessor() {
-    const {
-      username,
-      password,
-      email,
-      name_surname,
-      DoBPost,
-      loading,
-    } = this.state;
+    const { email, password, name_surname, DoBPost } = this.state;
 
     if (email == '' || password == '' || name_surname == '' || DoBPost == '') {
       Alert.alert(
         'Greška',
         'Molimo Vas da ispunite sva polja!',
+        [{ text: 'Okej' }],
+        { cancelable: false }
+      );
+    } else if (!name_surname.includes(' ')) {
+      Alert.alert(
+        'Greška',
+        'Unesite ispravan format imena i prezimena!',
         [{ text: 'Okej' }],
         { cancelable: false }
       );
@@ -344,6 +354,13 @@ class Register extends Component {
         ],
         { cancelable: false }
       );
+    } else if (!name_surname.includes(' ')) {
+      Alert.alert(
+        'Greška',
+        'Unesite ispravan format imena i prezimena!',
+        [{ text: 'Okej' }],
+        { cancelable: false }
+      );
     } else {
       this.setState({ loading: true });
 
@@ -379,19 +396,14 @@ class Register extends Component {
   }
 
   onRegistrationFail(error) {
-    Alert.alert(
-      'Alert Title',
-      error,
-      [
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
-        },
-        { text: 'OK', onPress: () => console.log('OK Pressed') },
-      ],
-      { cancelable: false }
-    );
+    if (error == '"email" must be a valid email') {
+      error = 'Pogrešan format email adrese!';
+    } else if (
+      error == '"password" length must be at least 6 characters long'
+    ) {
+      error = 'Lozinka mora imati najmanje 6 karaktera!';
+    }
+    Alert.alert('Greška!', error, [{ text: 'OK' }], { cancelable: false });
   }
 
   render() {
@@ -466,32 +478,25 @@ class Register extends Component {
             <View style={headerContainer}>
               <Heading style={header}>Registracija profesora</Heading>
             </View>
-            <View style={form}>
+            <View>
               <View style={section}>
                 <Input
-                  placeholder="Korisničko ime"
-                  value={username}
-                  multiline={false}
-                  onChangeText={(username) => this.setState({ username })}
-                />
-              </View>
-              <View style={section}>
-                <Input
-                  secureTextEntry
-                  placeholder="Lozinka"
-                  label="Lozinka"
-                  value={password}
-                  onChangeText={(password) => this.setState({ password })}
-                />
-              </View>
-              <View style={section}>
-                <Input
-                  placeholder="Email adresa"
-                  label="Email"
                   value={email}
+                  placeholder="Email adresa"
+                  keyboardType={'email-address'}
+                  autoCapitalize={'none'}
                   onChangeText={(email) => this.setState({ email })}
                 />
               </View>
+              <View style={section}>
+                <Input
+                  value={password}
+                  placeholder="Lozinka"
+                  secureTextEntry
+                  onChangeText={(password) => this.setState({ password })}
+                />
+              </View>
+
               <View style={section}>
                 <Input
                   placeholder="Ime i prezime"
@@ -506,12 +511,12 @@ class Register extends Component {
                   placeholder="Datum rođenja"
                   value={DoB}
                   onPress={this.showDatePicker}
-                />
+                ></DatePickerInput>
               </View>
               <DateTimePickerModal
                 isVisible={datePickerVisible}
                 mode="date"
-                style={{ backgroundColor: 'white' }}
+                isDarkModeEnabled={false}
                 onCancel={this.hideDatePicker}
                 onConfirm={(date) => {
                   this.confirmDatePicker(date);
@@ -540,165 +545,167 @@ class Register extends Component {
     } else if (registerType === 'Student') {
       return (
         <View style={registerScreen}>
-          <View style={formContainer}>
+          <SafeAreaView style={formContainer}>
             <View style={headerContainer}>
               <Heading style={header}>Registracija studenta</Heading>
             </View>
-            <View style={form}>
-              <View style={section}>
-                <Input
-                  placeholder="Email adresa"
-                  label="Email"
-                  value={email}
-                  onChangeText={(email) => this.setState({ email })}
-                />
-              </View>
-              <View style={section}>
-                <Input
-                  secureTextEntry
-                  placeholder="Lozinka"
-                  label="Lozinka"
-                  value={password}
-                  onChangeText={(password) => this.setState({ password })}
-                />
-              </View>
-              <View style={section}>
-                <Input
-                  placeholder="Ime i prezime"
-                  value={name_surname}
-                  onChangeText={(name_surname) =>
-                    this.setState({ name_surname })
-                  }
-                />
-              </View>
+            <KeyboardAvoidingView style={form} behavior={'padding'} enabled>
+              <ScrollView>
+                <View style={section}>
+                  <Input
+                    value={email}
+                    placeholder="Email adresa"
+                    keyboardType={'email-address'}
+                    autoCapitalize={'none'}
+                    onChangeText={(email) => this.setState({ email })}
+                  />
+                </View>
+                <View style={section}>
+                  <Input
+                    value={password}
+                    placeholder="Lozinka"
+                    secureTextEntry
+                    onChangeText={(password) => this.setState({ password })}
+                  />
+                </View>
+                <View style={section}>
+                  <Input
+                    placeholder="Ime i prezime"
+                    value={name_surname}
+                    onChangeText={(name_surname) =>
+                      this.setState({ name_surname })
+                    }
+                  />
+                </View>
 
-              <View
-                style={{
-                  ...(Platform.OS !== 'android' && {
-                    zIndex: 10,
-                  }),
-                }}
-              >
-                <DropDown
-                  zIndex={5000}
-                  items={[
-                    {
-                      label: 'Departman za pravne nauke',
-                      value: 'Departman za pravne nauke',
-                    },
-                    {
-                      label: 'Departman za ekonomske nauke',
-                      value: 'Departman za ekonomske nauke',
-                    },
-                    {
-                      label: 'Departman za filološke nauke',
-                      value: 'Departman za filološke nauke',
-                    },
-                    {
-                      label: 'Departman za filozofske nauke',
-                      value: 'Departman za filozofske nauke',
-                    },
-                    {
-                      label: 'Departman za matematičke nauke',
-                      value: 'Departman za matematičke nauke',
-                    },
-                    {
-                      label: 'Departman za tehničke nauke',
-                      value: 'Departman za tehničke nauke',
-                    },
-                    {
-                      label: 'Departman za hemijsko-tehnološke nauke',
-                      value: 'Departman za hemijsko-tehnološke nauke',
-                    },
-                    {
-                      label: 'Departman za biomedicinske nauke',
-                      value: 'Departman za biomedicinske nauke',
-                    },
-                    {
-                      label: 'Departman za umetnost',
-                      value: 'Departman za umetnost',
-                    },
-                    {
-                      label: 'Departman za multidisciplinarne nauke',
-                      value: 'Departman za multidisciplinarne nauke',
-                    },
-                    {
-                      label: 'Departman za biotehničke nauke u Sjenici',
-                      value: 'Departman za biotehničke nauke u Sjenici',
-                    },
-                  ]}
-                  placeholder={'Izaberite departman'}
-                  containerPropStyle={{
-                    marginHorizontal: 20,
-                    marginVertical: 6,
+                <View
+                  style={{
+                    ...(Platform.OS !== 'android' && {
+                      zIndex: 10,
+                    }),
                   }}
-                  onChange={(item) => {
-                    this.setState({ department: item.value }, () => {
-                      this.updateProfileData();
-                    });
+                >
+                  <DropDown
+                    items={[
+                      {
+                        label: 'Departman za pravne nauke',
+                        value: 'Departman za pravne nauke',
+                      },
+                      {
+                        label: 'Departman za ekonomske nauke',
+                        value: 'Departman za ekonomske nauke',
+                      },
+                      {
+                        label: 'Departman za filološke nauke',
+                        value: 'Departman za filološke nauke',
+                      },
+                      {
+                        label: 'Departman za filozofske nauke',
+                        value: 'Departman za filozofske nauke',
+                      },
+                      {
+                        label: 'Departman za matematičke nauke',
+                        value: 'Departman za matematičke nauke',
+                      },
+                      {
+                        label: 'Departman za tehničke nauke',
+                        value: 'Departman za tehničke nauke',
+                      },
+                      {
+                        label: 'Departman za hemijsko-tehnološke nauke',
+                        value: 'Departman za hemijsko-tehnološke nauke',
+                      },
+                      {
+                        label: 'Departman za biomedicinske nauke',
+                        value: 'Departman za biomedicinske nauke',
+                      },
+                      {
+                        label: 'Departman za umetnost',
+                        value: 'Departman za umetnost',
+                      },
+                      {
+                        label: 'Departman za multidisciplinarne nauke',
+                        value: 'Departman za multidisciplinarne nauke',
+                      },
+                      {
+                        label: 'Departman za biotehničke nauke u Sjenici',
+                        value: 'Departman za biotehničke nauke u Sjenici',
+                      },
+                    ]}
+                    placeholder={'Izaberite departman'}
+                    containerPropStyle={{
+                      marginHorizontal: 20,
+                      marginVertical: 6,
+                    }}
+                    onChange={(item) => {
+                      this.setState({ department: item.value }, () => {
+                        this.updateProfileData();
+                      });
+                    }}
+                  />
+                </View>
+                <View
+                  style={{
+                    ...(Platform.OS !== 'android' && {
+                      zIndex: 8,
+                    }),
                   }}
-                />
-              </View>
-              <View
-                style={{
-                  ...(Platform.OS !== 'android' && {
-                    zIndex: 8,
-                  }),
-                }}
-              >
-                <DropDown
-                  items={this.state.profileItems}
-                  placeholder={'Izaberite smer'}
-                  containerPropStyle={{
-                    marginHorizontal: 20,
-                    marginVertical: 6,
-                  }}
-                  disabled={department == '' ? true : false}
-                  onChange={(item) => {
-                    this.setState({ profile: item.value });
-                  }}
-                />
-              </View>
+                >
+                  <DropDown
+                    items={this.state.profileItems}
+                    placeholder={'Izaberite smer'}
+                    containerPropStyle={{
+                      marginHorizontal: 20,
+                      marginVertical: 6,
+                    }}
+                    disabled={department == '' ? true : false}
+                    onChange={(item) => {
+                      this.setState({ profile: item.value });
+                    }}
+                  />
+                </View>
 
-              <View
-                style={{
-                  ...(Platform.OS !== 'android' && {
-                    zIndex: 7,
-                  }),
-                }}
-              >
-                <DropDown
-                  items={[
-                    { label: '1.', value: '1.' },
-                    { label: '2.', value: '2.' },
-                    { label: '3.', value: '3.' },
-                    { label: '4.', value: '4.' },
-                  ]}
-                  placeholder={'Izaberite godinu studija'}
-                  containerPropStyle={{
-                    marginHorizontal: 20,
-                    marginVertical: 6,
+                <View
+                  style={{
+                    ...(Platform.OS !== 'android' && {
+                      zIndex: 7,
+                    }),
                   }}
-                  onChange={(item) => {
-                    this.setState({ grade: item.value });
-                  }}
-                />
-              </View>
-              <View style={section}>
-                <DatePickerInput
-                  placeholder="Datum rođenja"
-                  value={DoB}
-                  onPress={this.showDatePicker}
-                />
-              </View>
-              <View style={section}>
-                <Input
-                  placeholder="Broj indeksa"
-                  value={studentIdNo}
-                  onChangeText={(studentIdNo) => this.setState({ studentIdNo })}
-                />
-              </View>
-            </View>
+                >
+                  <DropDown
+                    items={[
+                      { label: '1.', value: '1.' },
+                      { label: '2.', value: '2.' },
+                      { label: '3.', value: '3.' },
+                      { label: '4.', value: '4.' },
+                    ]}
+                    placeholder={'Izaberite godinu studija'}
+                    containerPropStyle={{
+                      marginHorizontal: 20,
+                      marginVertical: 6,
+                    }}
+                    onChange={(item) => {
+                      this.setState({ grade: item.value });
+                    }}
+                  />
+                </View>
+                <View style={section}>
+                  <DatePickerInput
+                    value={DoB}
+                    onPress={this.showDatePicker}
+                  ></DatePickerInput>
+                </View>
+                <View style={section}>
+                  <Input
+                    placeholder="Broj indeksa"
+                    value={studentIdNo}
+                    onChangeText={(studentIdNo) =>
+                      this.setState({ studentIdNo })
+                    }
+                  />
+                </View>
+              </ScrollView>
+            </KeyboardAvoidingView>
 
             {!loading ? (
               <Button style={registerButton} onPress={this.registerStudent}>
@@ -715,13 +722,13 @@ class Register extends Component {
             <DateTimePickerModal
               isVisible={datePickerVisible}
               mode="date"
-              style={{ backgroundColor: 'white' }}
+              style={{ backgroundColor: 'white', borderColor: 'white' }}
               onCancel={this.hideDatePicker}
               onConfirm={(date) => {
                 this.confirmDatePicker(date);
               }}
             />
-          </View>
+          </SafeAreaView>
           <View style={footer}>
             <TextLink onPress={this.props.authSwitch}>
               Već imate korisnički nalog? Prijavite se!
@@ -786,7 +793,10 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   form: {
-    alignSelf: 'center',
+    height: '70%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   section: {
     flexDirection: 'row',
@@ -796,7 +806,7 @@ const styles = StyleSheet.create({
   registerButton: {
     height: 50,
     width: 370,
-    marginTop: 20,
+    marginTop: 25,
   },
   spinnerStyle: {
     borderWidth: 1,

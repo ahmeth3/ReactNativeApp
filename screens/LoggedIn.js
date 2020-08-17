@@ -68,7 +68,8 @@ export default class LoggedIn extends Component {
         </View>
       );
     } else if (this.state.screenHandler) {
-      if (this.props.account_type == 'Profesor') return <InitialProfessor />;
+      if (this.props.account_type == 'Profesor')
+        return <InitialProfessor jwt={this.props.jwt} />;
       if (this.props.account_type == 'Student')
         return <InitialStudent jwt={this.props.jwt} />;
     }

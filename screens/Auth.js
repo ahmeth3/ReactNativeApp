@@ -6,7 +6,7 @@ export default class Auth extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      showLogin: false,
+      showLogin: true,
     };
 
     this.authSwitch = this.authSwitch.bind(this);

@@ -1,5 +1,12 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Image, Alert } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Image,
+  Alert,
+  ScrollView,
+  KeyboardAvoidingView,
+} from 'react-native';
 import { Input, TextLink, Button, Loading, Heading } from '../common';
 import axios from 'axios';
 import tokenStorage from '../../services/tokenStorage';
@@ -20,7 +27,7 @@ class Login extends Component {
       Alert.alert(
         'Greška',
         'Molimo Vas da ispunite sva polja!',
-        [{ text: 'OK' }],
+        [{ text: 'Okej' }],
         { cancelable: false }
       );
     } else {
@@ -33,14 +40,12 @@ class Login extends Component {
         })
         .then((response) => {
           // Handle the JWT response here
-          console.log('response je ' + response.data);
           tokenStorage.saveItem('id_token', response.data);
           this.setState({ loading: false });
           this.props.newJWT(response.data);
         })
         .catch((error) => {
           // Handle returned errors here
-          console.log(error.response.data);
           this.onLoginFail(error.response.data);
           this.setState({ loading: false });
         });
@@ -48,6 +53,13 @@ class Login extends Component {
   }
 
   onLoginFail(error) {
+    if (error == '"email" must be a valid email') {
+      error = 'Pogrešan format email adrese!';
+    } else if (
+      error == '"password" length must be at least 6 characters long'
+    ) {
+      error = 'Pogrešna lozinka!';
+    }
     Alert.alert('Greška!', error, [{ text: 'OK' }], { cancelable: false });
   }
 
@@ -63,6 +75,7 @@ class Login extends Component {
       form,
       section,
       registerButton,
+      spinnerStyle,
       footer,
     } = styles;
     return (
@@ -77,18 +90,18 @@ class Login extends Component {
           <View style={form}>
             <View style={section}>
               <Input
-                placeholder="Email adresa"
-                label="Email"
                 value={email}
+                placeholder="Email adresa"
+                keyboardType={'email-address'}
+                autoCapitalize={'none'}
                 onChangeText={(email) => this.setState({ email })}
               />
             </View>
             <View style={section}>
               <Input
+                value={password}
                 secureTextEntry
                 placeholder="Lozinka"
-                label="Lozinka"
-                value={password}
                 onChangeText={(password) => this.setState({ password })}
               />
             </View>
@@ -100,7 +113,7 @@ class Login extends Component {
           ) : (
             <Loading
               size={'large'}
-              style={registerButton}
+              style={spinnerStyle}
               spinnerStyle={{ paddingTop: 5 }}
             />
           )}
@@ -119,9 +132,9 @@ class Login extends Component {
 const styles = StyleSheet.create({
   registerTypeContainer: {
     flex: 1,
+    backgroundColor: 'orange',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'orange',
   },
   imageContainer: { flex: 2, width: '100%' },
   stretch: {
@@ -162,6 +175,15 @@ const styles = StyleSheet.create({
     width: 370,
   },
   registerButton: {
+    height: 50,
+    width: 370,
+    marginTop: 20,
+  },
+  spinnerStyle: {
+    borderWidth: 1,
+    borderColor: 'orange',
+    backgroundColor: 'rgb(27,41,69)',
+    borderRadius: 25,
     height: 50,
     width: 370,
     marginTop: 20,

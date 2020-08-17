@@ -2,27 +2,26 @@ import React from 'react';
 import { View, TextInput, Text, StyleSheet } from 'react-native';
 
 const Input = ({
-  label,
   value,
-  onChangeText,
   placeholder,
+  keyboardType,
+  autoCapitalize,
   secureTextEntry,
-  multiline,
-  numberOfLines,
+  onChangeText,
 }) => {
   const { inputStyle, labelStyle, containerStyle } = styles;
 
   return (
     <View style={containerStyle}>
       <TextInput
-        placeholderTextColor={'rgb(27,41,69)'}
-        secureTextEntry={secureTextEntry}
-        placeholder={placeholder}
         value={value}
+        placeholder={placeholder}
+        placeholderTextColor={'rgb(27,41,69)'}
+        keyboardType={keyboardType}
+        autoCapitalize={autoCapitalize}
+        secureTextEntry={secureTextEntry}
         onChangeText={onChangeText}
         autoCorrect={false}
-        multiline={multiline}
-        numberOfLines={numberOfLines}
         style={inputStyle}
       />
     </View>

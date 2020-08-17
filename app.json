@@ -13,12 +13,11 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
+    "android": { "softwareKeyboardLayoutMode": "pan" },
     "web": {
       "favicon": "./assets/favicon.png"
     }
