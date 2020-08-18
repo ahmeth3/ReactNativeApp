@@ -5,6 +5,23 @@ import InitialProfessor from './InitialScreens/InitialProfessor';
 import InitialStudent from './InitialScreens/InitialStudent';
 import axios from 'axios';
 
+import MainConsultationScreen from './ConsultationScreens/MainConsultationScreen';
+
+import MainProjectsScreen from './ProjectsScreens/MainProjectsScreen';
+
+import MySubjects from './SubjectsScreens/MySubjects';
+import EditProfessorSubjects from './SubjectsScreens/EditProfessorSubjects';
+import EditStudentSubjects from './SubjectsScreens/EditStudentSubjects';
+
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+
+const BottomTabs = createBottomTabNavigator();
+const Stack = createStackNavigator();
+const Drawer = createDrawerNavigator();
+
 export default class LoggedIn extends Component {
   constructor(props) {
     super(props);
@@ -62,10 +79,26 @@ export default class LoggedIn extends Component {
         </View>
       );
     } else if (!this.state.loading && !this.state.screenHandler) {
+      createSubjectsStack = () => (
+        <Stack.Navigator>
+          <Stack.Screen name="MySubjects" component={MySubjects} />
+          <Stack.Screen
+            name="EditProfessorSubjects"
+            component={EditProfessorSubjects}
+          />
+        </Stack.Navigator>
+      );
       return (
-        <View style={styles.container}>
-          <Text>Ovo je main screen</Text>
-        </View>
+        <NavigationContainer>
+          <Drawer.Navigator>
+            <Drawer.Screen name="Subjects" children={createSubjectsStack} />
+            <Drawer.Screen
+              name="Consultation"
+              component={MainConsultationScreen}
+            />
+            <Drawer.Screen name="Projects" component={MainProjectsScreen} />
+          </Drawer.Navigator>
+        </NavigationContainer>
       );
     } else if (this.state.screenHandler) {
       if (this.props.account_type == 'Profesor')
