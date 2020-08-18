@@ -1,4 +1,5 @@
 export * from './Button';
+export * from './GradeButton';
 export * from './Input';
 export * from './TextLink';
 export * from './Loading';

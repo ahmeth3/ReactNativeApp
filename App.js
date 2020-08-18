@@ -19,7 +19,7 @@ export default class App extends Component {
     this.newJWT = this.newJWT.bind(this);
     this.deleteJWT = tokenStorage.deleteJWT.bind(this);
     this.loadJWT = tokenStorage.loadJWT.bind(this);
-    
+
     this.deleteJWT();
     this.loadJWT();
   }
