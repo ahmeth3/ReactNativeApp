@@ -27,7 +27,7 @@ export default class InitialStudent extends Component {
     this.fetchSubject = this.fetchSubject.bind(this);
     this.updateSubjects = this.updateSubjects.bind(this);
 
-    this.fetchSubject('0.', '4');
+    this.fetchSubject('0.');
   }
 
   fetchSubject(grade) {

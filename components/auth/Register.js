@@ -722,6 +722,7 @@ class Register extends Component {
             <DateTimePickerModal
               isVisible={datePickerVisible}
               mode="date"
+              isDarkModeEnabled={false}
               style={{ backgroundColor: 'white', borderColor: 'white' }}
               onCancel={this.hideDatePicker}
               onConfirm={(date) => {

@@ -6,6 +6,8 @@ import InitialStudent from './InitialScreens/InitialStudent';
 import axios from 'axios';
 
 import MainConsultationScreen from './ConsultationScreens/MainConsultationScreen';
+import EditConsultationScreen from './ConsultationScreens/EditConsulationScreen';
+import AddConsultationScreen from './ConsultationScreens/AddConsultationScreen';
 
 import MainProjectsScreen from './ProjectsScreens/MainProjectsScreen';
 
@@ -86,17 +88,38 @@ export default class LoggedIn extends Component {
             name="EditProfessorSubjects"
             component={EditProfessorSubjects}
           />
+          <Stack.Screen
+            name="EditStudentSubjects"
+            component={EditStudentSubjects}
+          />
+        </Stack.Navigator>
+      );
+
+      createConsultationsStack = () => (
+        <Stack.Navigator>
+          <Stack.Screen
+            name="MainConsultation"
+            component={MainConsultationScreen}
+          />
+          <Stack.Screen
+            name="EditConsultation"
+            component={EditConsultationScreen}
+          />
+          <Stack.Screen
+            name="AddConsultation"
+            component={AddConsultationScreen}
+          />
         </Stack.Navigator>
       );
       return (
         <NavigationContainer>
           <Drawer.Navigator>
-            <Drawer.Screen name="Subjects" children={createSubjectsStack} />
             <Drawer.Screen
               name="Consultation"
-              component={MainConsultationScreen}
+              children={createConsultationsStack}
             />
             <Drawer.Screen name="Projects" component={MainProjectsScreen} />
+            <Drawer.Screen name="Subjects" children={createSubjectsStack} />
           </Drawer.Navigator>
         </NavigationContainer>
       );

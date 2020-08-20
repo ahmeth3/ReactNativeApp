@@ -11,7 +11,7 @@ const Loading = ({ style, spinnerStyle, size }) => {
 
 const styles = StyleSheet.create({
   spinnerContainer: {
-    // 
+    //
   },
 });
 

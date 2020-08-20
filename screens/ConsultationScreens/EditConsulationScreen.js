@@ -4,113 +4,44 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  AsyncStorage,
+  FlatList,
 } from 'react-native';
-import {
-  Card,
-  Button,
-  DatePickerInput,
-  Loading,
-} from '../../components/common';
+import { Card, Button, Loading } from '../../components/common';
 import axios from 'axios';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import { FlatList } from 'react-native-gesture-handler';
 
-export default class MainConsultationScreen extends Component {
+export default class EditConsultationScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      jwt: '',
-      account_type: '',
       fetchedConsultations: [],
       loading: true,
     };
+
+    this.jwt = this.props.route.params.jwt;
 
     props.navigation.setOptions({
       headerStyle: {
         backgroundColor: 'rgb(27,41,69)',
       },
-      headerTitle: 'Konsultacije',
+      headerTitle: 'Izmenite konsultacije',
       headerTintColor: '#fff',
       headerTitleStyle: {
         fontWeight: 'bold',
         fontSize: 24,
       },
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={() => {
-            this.props.navigation.navigate('EditConsultation', {
-              jwt: this.state.jwt,
-            });
-          }}
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            width: 70,
-          }}
-        >
-          <Text style={{ fontSize: 14, color: 'white' }}>Izmenite</Text>
-        </TouchableOpacity>
-      ),
-      headerLeft: () => (
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: 70,
-          }}
-          onPress={() => {
-            this.props.navigation.toggleDrawer();
-          }}
-        >
-          <AntDesign name="bars" style={{ color: 'white', fontSize: 28 }} />
-        </TouchableOpacity>
-      ),
+      headerBackTitle: 'Nazad',
     });
 
-    this.loadJWT();
-  }
-
-  async loadJWT() {
-    try {
-      const value = await AsyncStorage.getItem('id_token');
-      if (value !== null) {
-        //ovde da zovnem backend i validira token
-        axios
-          .post(
-            `https://blooming-castle-17380.herokuapp.com/user/login/${value}`
-          )
-          .then((response) => {
-            this.setState(
-              {
-                jwt: value,
-                account_type: response.data,
-              },
-              () => {
-                if (this.state.account_type == 'Profesor')
-                  this.fetchMyConsultations();
-                else if (this.state.account_type == 'Student') {
-                  this.setState({ loading: false });
-                }
-              }
-            );
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      }
-    } catch (error) {
-      console.log('AsyncStorage Error: ' + error.message);
-    }
+    this.fetchMyConsultations();
   }
 
   fetchMyConsultations() {
     axios
       .get(
-        `https://blooming-castle-17380.herokuapp.com/consultation/professor/${this.state.jwt}`
+        `https://blooming-castle-17380.herokuapp.com/consultation/professor/${this.jwt}`
       )
       .then((response) => {
         // Handle the JWT response here
@@ -146,7 +77,7 @@ export default class MainConsultationScreen extends Component {
   render() {
     if (this.state.loading) {
       return (
-        <View style={styles.center}>
+        <View style={{ ...styles.center, justifyContent: 'center' }}>
           <Loading size={'large'} />
         </View>
       );
@@ -163,7 +94,11 @@ export default class MainConsultationScreen extends Component {
               keyExtractor={(item) => item._id.toString()}
               showsHorizontalScrollIndicator={false}
               style={{ width: '100%' }}
-              contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+              contentContainerStyle={{
+                flexGrow: 1,
+                justifyContent: 'center',
+                height: '80%',
+              }}
               renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => {}}>
                   <Card style={styles.cardStyle}>
@@ -193,6 +128,18 @@ export default class MainConsultationScreen extends Component {
               )}
             />
           )}
+          <View style={{ height: '20%' }}>
+            <Button
+              style={styles.addButton}
+              onPress={() =>
+                this.props.navigation.navigate('AddConsultation', {
+                  jwt: this.jwt,
+                })
+              }
+            >
+              Dodajte konsultacije
+            </Button>
+          </View>
         </View>
       );
   }
@@ -201,9 +148,13 @@ export default class MainConsultationScreen extends Component {
 const styles = StyleSheet.create({
   center: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: 'orange',
+  },
+  addButton: {
+    height: 50,
+    width: 370,
   },
   title: {
     fontSize: 36,
