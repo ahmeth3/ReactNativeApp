@@ -111,6 +111,7 @@ export default class LoggedIn extends Component {
           />
         </Stack.Navigator>
       );
+      
       return (
         <NavigationContainer>
           <Drawer.Navigator>

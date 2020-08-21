@@ -90,9 +90,9 @@ export default class MainConsultationScreen extends Component {
                 account_type: response.data,
               },
               () => {
-                if (this.state.account_type == 'Profesor')
+                if (this.state.account_type == 'Profesor') {
                   this.fetchMyConsultations();
-                else if (this.state.account_type == 'Student') {
+                } else if (this.state.account_type == 'Student') {
                   this.setState({ loading: false });
                 }
               }
@@ -114,11 +114,15 @@ export default class MainConsultationScreen extends Component {
       )
       .then((response) => {
         // Handle the JWT response here
-        this.setState({ fetchedConsultations: response.data, loading: false });
+        // console.log(response.data.data);
+        this.setState({
+          fetchedConsultations: response.data.data,
+          loading: false,
+        });
       })
       .catch((error) => {
         // Handle returned errors here
-        console.log(error.response.data);
+        console.log(error.response);
       });
   }
 

@@ -45,11 +45,14 @@ export default class EditConsultationScreen extends Component {
       )
       .then((response) => {
         // Handle the JWT response here
-        this.setState({ fetchedConsultations: response.data, loading: false });
+        this.setState({
+          fetchedConsultations: response.data.data,
+          loading: false,
+        });
       })
       .catch((error) => {
         // Handle returned errors here
-        console.log(error.response.data);
+        console.log(error.response);
       });
   }
 

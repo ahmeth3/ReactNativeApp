@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { Card, Button, DatePickerInput, Input } from '../../components/common';
 import axios from 'axios';
@@ -364,7 +365,67 @@ export default class AddConsultationScreen extends Component {
             <TouchableOpacity
               style={styles.confirmButton}
               onPress={() => {
-                this.addConsultation();
+                // this.addConsultation();
+                if (this.state.typeOFDate == 'day') {
+                  var chosenDay = 1;
+                  if (this.state.day == 'P') {
+                    chosenDay = 1;
+                  }
+                  if (this.state.day == 'U') {
+                    chosenDay = 2;
+                  }
+                  if (this.state.day == 'S') {
+                    chosenDay = 3;
+                  }
+                  if (this.state.day == 'Č') {
+                    chosenDay = 4;
+                  }
+                  if (this.state.day == 'PT') {
+                    chosenDay = 5;
+                  }
+
+                  var todaysDate = new Date();
+                  var scheduledDate = new Date();
+
+                  if (todaysDate.getDay() < chosenDay) {
+                    scheduledDate = scheduledDate.setDate(
+                      todaysDate.getDate() + chosenDay - todaysDate.getDay() + 1
+                    );
+                  } else if (todaysDate.getDay() > chosenDay) {
+                    scheduledDate = scheduledDate.setDate(
+                      todaysDate.getDate() +
+                        chosenDay +
+                        (8 - todaysDate.getDay())
+                    );
+                  } else if (todaysDate.getDay() == chosenDay) {
+                    scheduledDate = scheduledDate.setDate(todaysDate.getDate());
+                    var formattedDate = new Date(scheduledDate);
+
+                    var chosenStartTime = this.state.timeStart;
+                    chosenStartTime = chosenStartTime.split(':');
+                    var chosenHour = parseInt(chosenStartTime[0]);
+                    var chosenMinutes = parseInt(chosenStartTime[1]);
+
+                    if (
+                      chosenHour * 60 + chosenMinutes <
+                      parseInt(formattedDate.getHours()) * 60 +
+                        parseInt(formattedDate.getMinutes())
+                    ) {
+                      scheduledDate = todaysDate.setDate(
+                        todaysDate.getDate() + 7
+                      );
+                    }
+                  }
+
+                  var formattedDate = new Date(scheduledDate);
+
+                  formattedDate.setUTCHours(0, 0, 0, 0);
+                  this.setState({ DoBPost: formattedDate }, () => {
+                    this.addConsultation();
+                  });
+                } else {
+                  this.addConsultation();
+                }
               }}
             >
               <Text style={styles.confirmButtonText}>Dodajte</Text>
