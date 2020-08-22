@@ -22,12 +22,13 @@ export default class MySubjects extends Component {
       fetchedSubjects: [],
       jwt: '',
       account_type: '',
-      count: 0,
+      count: 1,
     };
     this.t = setInterval(() => {
       this.setState({ count: this.state.count + 1 });
       this.loadJWT();
     }, 1000);
+    this.focusListener = '';
     this.fetchMySubjects = this.fetchMySubjects.bind(this);
 
     props.navigation.setOptions({

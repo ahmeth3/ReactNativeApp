@@ -7,6 +7,7 @@ import axios from 'axios';
 
 import MainConsultationScreen from './ConsultationScreens/MainConsultationScreen';
 import EditConsultationScreen from './ConsultationScreens/EditConsulationScreen';
+import EditSpecificConsultationScreen from './ConsultationScreens/EditSpecificConsultationScreen';
 import AddConsultationScreen from './ConsultationScreens/AddConsultationScreen';
 
 import MainProjectsScreen from './ProjectsScreens/MainProjectsScreen';
@@ -18,7 +19,12 @@ import EditStudentSubjects from './SubjectsScreens/EditStudentSubjects';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+} from '@react-navigation/drawer';
 
 const BottomTabs = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -43,6 +49,7 @@ export default class LoggedIn extends Component {
         )
         .then((response) => {
           if (response.data == 'Nema basic info') {
+            console.log('aaaaa');
             this.setState({ screenHandler: true, loading: false });
           } else this.setState({ loading: false });
         })
@@ -106,15 +113,33 @@ export default class LoggedIn extends Component {
             component={EditConsultationScreen}
           />
           <Stack.Screen
+            name="EditSpecificConsultation"
+            component={EditSpecificConsultationScreen}
+          />
+          <Stack.Screen
             name="AddConsultation"
             component={AddConsultationScreen}
           />
         </Stack.Navigator>
       );
-      
+
       return (
         <NavigationContainer>
-          <Drawer.Navigator>
+          <Drawer.Navigator
+            drawerContent={(props) => {
+              return (
+                <DrawerContentScrollView {...props}>
+                  <DrawerItemList {...props} />
+                  <DrawerItem
+                    label="Logout"
+                    onPress={() => {
+                      this.props.deleteJWT();
+                    }}
+                  />
+                </DrawerContentScrollView>
+              );
+            }}
+          >
             <Drawer.Screen
               name="Consultation"
               children={createConsultationsStack}

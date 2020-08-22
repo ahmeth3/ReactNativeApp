@@ -26,7 +26,12 @@ export default class MainConsultationScreen extends Component {
       account_type: '',
       fetchedConsultations: [],
       loading: true,
+      count: 0,
     };
+    this.t = setInterval(() => {
+      this.setState({ count: this.state.count + 1 });
+      this.loadJWT();
+    }, 1000);
 
     props.navigation.setOptions({
       headerStyle: {
@@ -38,22 +43,6 @@ export default class MainConsultationScreen extends Component {
         fontWeight: 'bold',
         fontSize: 24,
       },
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={() => {
-            this.props.navigation.navigate('EditConsultation', {
-              jwt: this.state.jwt,
-            });
-          }}
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            width: 70,
-          }}
-        >
-          <Text style={{ fontSize: 14, color: 'white' }}>Izmenite</Text>
-        </TouchableOpacity>
-      ),
       headerLeft: () => (
         <TouchableOpacity
           style={{
@@ -91,9 +80,30 @@ export default class MainConsultationScreen extends Component {
               },
               () => {
                 if (this.state.account_type == 'Profesor') {
+                  this.props.navigation.setOptions({
+                    headerRight: () => (
+                      <TouchableOpacity
+                        onPress={() => {
+                          this.props.navigation.navigate('EditConsultation', {
+                            jwt: this.state.jwt,
+                            onGoBack: () => console.log('VRATIO SAM SE'),
+                          });
+                        }}
+                        style={{
+                          flex: 1,
+                          justifyContent: 'center',
+                          width: 70,
+                        }}
+                      >
+                        <Text style={{ fontSize: 14, color: 'white' }}>
+                          Izmenite
+                        </Text>
+                      </TouchableOpacity>
+                    ),
+                  });
                   this.fetchMyConsultations();
                 } else if (this.state.account_type == 'Student') {
-                  this.setState({ loading: false });
+                  this.fetchMyConsultations();
                 }
               }
             );
@@ -107,11 +117,27 @@ export default class MainConsultationScreen extends Component {
     }
   }
 
+  componentDidMount() {
+    const { navigation } = this.props;
+    this.focusListener = navigation.addListener('didFocus', () => {
+      this.setState({ count: 0 });
+    });
+  }
+
+  componentWillUnmount() {
+    // this.focusListener.remove();
+    clearTimeout(this.t);
+  }
+
   fetchMyConsultations() {
+    var url = '';
+    if (this.state.account_type == 'Profesor') {
+      url = `https://blooming-castle-17380.herokuapp.com/consultation/professor/${this.state.jwt}`;
+    } else if (this.state.account_type == 'Student') {
+      url = `https://blooming-castle-17380.herokuapp.com/consultation/student/${this.state.jwt}`;
+    }
     axios
-      .get(
-        `https://blooming-castle-17380.herokuapp.com/consultation/professor/${this.state.jwt}`
-      )
+      .get(url)
       .then((response) => {
         // Handle the JWT response here
         // console.log(response.data.data);
@@ -140,11 +166,24 @@ export default class MainConsultationScreen extends Component {
     if (value == 'Č') {
       convertedDay = 'Četvrtak';
     }
-    if (value == 'PK') {
+    if (value == 'PT') {
       convertedDay = 'Petak';
     }
 
     return convertedDay;
+  }
+
+  convertDate(value) {
+    var date = new Date(value);
+
+    return (
+      date.getDate() +
+      '. ' +
+      (date.getMonth() + 1) +
+      '. ' +
+      date.getFullYear() +
+      '.'
+    );
   }
 
   render() {
@@ -172,19 +211,31 @@ export default class MainConsultationScreen extends Component {
                 <TouchableOpacity onPress={() => {}}>
                   <Card style={styles.cardStyle}>
                     <View style={styles.topView}>
-                      <Text style={styles.dayTitle}>
-                        {this.whichDay(item.day)}
-                      </Text>
+                      {item.typeOFDate == 'day' ? (
+                        <Text style={styles.dayTitle}>
+                          {this.whichDay(item.day)}
+                        </Text>
+                      ) : (
+                        <Text style={styles.dayTitle}>
+                          {this.convertDate(item.date)}
+                        </Text>
+                      )}
+
                       <Text style={styles.time}>
                         {item.startTime}-{item.endTime}
                       </Text>
                     </View>
                     <View style={styles.midView}>
-                      <Text style={styles.midViewText}>
-                        {item.repeatEveryWeek
-                          ? 'Svake nedelje'
-                          : 'Ne ponavlja se'}
-                      </Text>
+                      {item.typeOFDate == 'day' ? (
+                        <Text style={styles.midViewText}>
+                          {item.repeatEveryWeek
+                            ? 'Svake nedelje'
+                            : 'Ne ponavlja se'}
+                        </Text>
+                      ) : (
+                        <Text style={styles.midViewText}></Text>
+                      )}
+
                       <Text style={styles.midViewText}>{item.place}</Text>
                     </View>
                     <View>

@@ -15,29 +15,30 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
-export default class AddConsultationScreen extends Component {
+export default class EditSpecificConsultationScreen extends Component {
   constructor(props) {
     super(props);
+    this.jwt = this.props.route.params.jwt;
+    this.item = this.props.route.params.item;
+
     this.state = {
-      typeOFDate: 'day',
-      day: '',
-      repeatEveryWeek: false,
-      timeStart: '',
-      timeEnd: '',
-      place: '',
+      typeOFDate: this.item.typeOFDate,
+      day: this.item.day,
+      repeatEveryWeek: this.item.repeatEveryWeek,
+      timeStart: this.item.startTime,
+      timeEnd: this.item.endTime,
+      place: this.item.place,
       DoB: '',
       DoBPost: '',
       datePickerVisible: false,
       timePickerVisible: false,
     };
 
-    this.jwt = this.props.route.params.jwt;
-
     props.navigation.setOptions({
       headerStyle: {
         backgroundColor: 'rgb(27,41,69)',
       },
-      headerTitle: 'Dodajte konsultacije',
+      headerTitle: 'Izmenite konsultaciju',
       headerTintColor: '#fff',
       headerTitleStyle: {
         fontWeight: 'bold',
@@ -53,6 +54,42 @@ export default class AddConsultationScreen extends Component {
     this.showDatePicker = this.showDatePicker.bind(this);
     this.hideDatePicker = this.hideDatePicker.bind(this);
     this.confirmDatePicker = this.confirmDatePicker.bind(this);
+
+    this.updateConsultation = this.updateConsultation.bind(this);
+    this.deleteConsultation = this.deleteConsultation.bind(this);
+  }
+
+  componentDidMount() {
+    this.fillDateForm();
+  }
+
+  fillDateForm() {
+    var value = new Date(this.item.date);
+
+    const months = [
+      'Januar',
+      'Februar',
+      'Mart',
+      'April',
+      'Maj',
+      'Jun',
+      'Jul',
+      'Avgust',
+      'Septembar',
+      'Oktobar',
+      'Novembar',
+      'Decembar',
+    ];
+
+    var year = value.getFullYear();
+    var month = months[value.getMonth()];
+    var day = value.getDate();
+    var dateString = day + '. ' + month + ' ' + year + '. godine';
+
+    this.setState({ DoB: dateString });
+
+    var dateForPost = year + '-' + (value.getMonth() + 1) + '-' + day;
+    this.setState({ DoBPost: dateForPost });
   }
 
   showTimePicker() {
@@ -113,11 +150,12 @@ export default class AddConsultationScreen extends Component {
     this.hideDatePicker();
   }
 
-  addConsultation() {
+  updateConsultation() {
     axios
-      .post(
-        `https://blooming-castle-17380.herokuapp.com/consultation/create/${this.jwt}`,
+      .patch(
+        `https://blooming-castle-17380.herokuapp.com/consultation/update/${this.jwt}`,
         {
+          _id: this.item._id,
           typeOFDate: this.state.typeOFDate,
           day: this.state.day,
           repeatEveryWeek: this.state.repeatEveryWeek,
@@ -129,11 +167,26 @@ export default class AddConsultationScreen extends Component {
       )
       .then((response) => {
         // Handle the JWT response here
-        console.log('response je ' + response);
+        console.log('response je ' + response.data);
       })
       .catch((error) => {
         // Handle returned errors here
         console.log(error.response.data);
+      });
+  }
+
+  deleteConsultation() {
+    axios
+      .post(
+        `https://blooming-castle-17380.herokuapp.com/consultation/delete/${this.item._id}`
+      )
+      .then((response) => {
+        // Handle the JWT response here
+        console.log('response je ' + response.data);
+      })
+      .catch((error) => {
+        // Handle returned errors here
+        console.log(error.response);
       });
   }
 
@@ -144,6 +197,7 @@ export default class AddConsultationScreen extends Component {
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.dateContainer}>
               <TouchableOpacity
+                disabled={this.state.typeOFDate == 'date'}
                 style={{
                   ...styles.dateButton,
                   borderTopLeftRadius: 15,
@@ -154,13 +208,11 @@ export default class AddConsultationScreen extends Component {
                       ? 'rgb(27,41,69)'
                       : 'rgb(20, 20, 20)',
                 }}
-                onPress={() => {
-                  this.setState({ typeOFDate: 'day' });
-                }}
               >
                 <Text style={styles.dateButtonTitle}>Dani</Text>
               </TouchableOpacity>
               <TouchableOpacity
+                disabled={this.state.typeOFDate == 'day'}
                 style={{
                   ...styles.dateButton,
                   borderTopRightRadius: 15,
@@ -168,13 +220,6 @@ export default class AddConsultationScreen extends Component {
                     this.state.typeOFDate == 'day'
                       ? 'rgb(27,41,69)'
                       : 'rgb(20, 20, 20)',
-                }}
-                onPress={() => {
-                  this.setState({
-                    typeOFDate: 'date',
-                    day: '',
-                    repeatEveryWeek: false,
-                  });
                 }}
               >
                 <Text style={styles.dateButtonTitle}>Datum</Text>
@@ -362,74 +407,95 @@ export default class AddConsultationScreen extends Component {
               }}
             />
 
-            <TouchableOpacity
-              style={styles.confirmButton}
-              onPress={() => {
-                // this.addConsultation();
-                if (this.state.typeOFDate == 'day') {
-                  var chosenDay = 1;
-                  if (this.state.day == 'P') {
-                    chosenDay = 1;
-                  }
-                  if (this.state.day == 'U') {
-                    chosenDay = 2;
-                  }
-                  if (this.state.day == 'S') {
-                    chosenDay = 3;
-                  }
-                  if (this.state.day == 'Č') {
-                    chosenDay = 4;
-                  }
-                  if (this.state.day == 'PT') {
-                    chosenDay = 5;
-                  }
-
-                  var todaysDate = new Date();
-                  var scheduledDate = new Date();
-
-                  if (todaysDate.getDay() < chosenDay) {
-                    scheduledDate = scheduledDate.setDate(
-                      todaysDate.getDate() + chosenDay - todaysDate.getDay()
-                    );
-                  } else if (todaysDate.getDay() > chosenDay) {
-                    scheduledDate = scheduledDate.setDate(
-                      todaysDate.getDate() +
-                        chosenDay +
-                        (7 - todaysDate.getDay())
-                    );
-                  } else if (todaysDate.getDay() == chosenDay) {
-                    scheduledDate = scheduledDate.setDate(todaysDate.getDate());
-                    var formattedDate = new Date(scheduledDate);
-
-                    var chosenStartTime = this.state.timeStart;
-                    chosenStartTime = chosenStartTime.split(':');
-                    var chosenHour = parseInt(chosenStartTime[0]);
-                    var chosenMinutes = parseInt(chosenStartTime[1]);
-
-                    if (
-                      chosenHour * 60 + chosenMinutes <
-                      parseInt(formattedDate.getHours()) * 60 +
-                        parseInt(formattedDate.getMinutes())
-                    ) {
-                      scheduledDate = todaysDate.setDate(
-                        todaysDate.getDate() + 7
-                      );
-                    }
-                  }
-
-                  var formattedDate = new Date(scheduledDate);
-
-                  formattedDate.setUTCHours(0, 0, 0, 0);
-                  this.setState({ DoBPost: formattedDate }, () => {
-                    this.addConsultation();
-                  });
-                } else {
-                  this.addConsultation();
-                }
+            <View
+              style={{
+                flexDirection: 'row',
+                height: '10%',
+                marginTop: '5%',
+                justifyContent: 'space-around',
+                paddingHorizontal: 10,
               }}
             >
-              <Text style={styles.confirmButtonText}>Dodajte</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={() => {
+                  if (this.state.typeOFDate == 'day') {
+                    var chosenDay = 1;
+                    if (this.state.day == 'P') {
+                      chosenDay = 1;
+                    }
+                    if (this.state.day == 'U') {
+                      chosenDay = 2;
+                    }
+                    if (this.state.day == 'S') {
+                      chosenDay = 3;
+                    }
+                    if (this.state.day == 'Č') {
+                      chosenDay = 4;
+                    }
+                    if (this.state.day == 'PT') {
+                      chosenDay = 5;
+                    }
+
+                    var todaysDate = new Date();
+                    var scheduledDate = new Date();
+
+                    if (todaysDate.getDay() < chosenDay) {
+                      scheduledDate = scheduledDate.setDate(
+                        todaysDate.getDate() + chosenDay - todaysDate.getDay()
+                      );
+                    } else if (todaysDate.getDay() > chosenDay) {
+                      scheduledDate = scheduledDate.setDate(
+                        todaysDate.getDate() +
+                          chosenDay +
+                          (7 - todaysDate.getDay())
+                      );
+                    } else if (todaysDate.getDay() == chosenDay) {
+                      scheduledDate = scheduledDate.setDate(
+                        todaysDate.getDate()
+                      );
+                      var formattedDate = new Date(scheduledDate);
+
+                      var chosenStartTime = this.state.timeStart;
+                      chosenStartTime = chosenStartTime.split(':');
+                      var chosenHour = parseInt(chosenStartTime[0]);
+                      var chosenMinutes = parseInt(chosenStartTime[1]);
+
+                      if (
+                        chosenHour * 60 + chosenMinutes <
+                        parseInt(formattedDate.getHours()) * 60 +
+                          parseInt(formattedDate.getMinutes())
+                      ) {
+                        scheduledDate = todaysDate.setDate(
+                          todaysDate.getDate() + 7
+                        );
+                      }
+                    }
+
+                    var formattedDate = new Date(scheduledDate);
+
+                    formattedDate.setUTCHours(0, 0, 0, 0);
+                    this.setState({ DoBPost: formattedDate }, () => {
+                      this.updateConsultation();
+                      // console.log(this.state);
+                      // console.log(this.item._id);
+                    });
+                  } else {
+                    this.updateConsultation();
+                  }
+                }}
+              >
+                <Text style={styles.confirmButtonText}>Ažurirajte</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ ...styles.confirmButton, backgroundColor: 'red' }}
+                onPress={() => {
+                  this.deleteConsultation();
+                }}
+              >
+                <Text style={styles.confirmButtonText}>Izbrišite</Text>
+              </TouchableOpacity>
+            </View>
           </ScrollView>
         </KeyboardAvoidingView>
       </View>
@@ -504,10 +570,8 @@ const styles = StyleSheet.create({
   placeContainer: { width: '70%', marginHorizontal: 5 },
   datePickerContainer: { width: '70%', marginLeft: 10 },
   confirmButton: {
-    width: '60%',
-    height: '10%',
-    alignSelf: 'center',
-    marginTop: '10%',
+    width: '40%',
+    height: '100%',
     borderWidth: 1,
     borderColor: 'white',
     backgroundColor: 'rgb(27,41,69)',

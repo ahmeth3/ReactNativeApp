@@ -11,6 +11,7 @@ import axios from 'axios';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import { HeaderBackButton } from '@react-navigation/stack';
 
 export default class EditConsultationScreen extends Component {
   constructor(props) {
@@ -18,7 +19,12 @@ export default class EditConsultationScreen extends Component {
     this.state = {
       fetchedConsultations: [],
       loading: true,
+      count: 0,
     };
+    this.t = setInterval(() => {
+      this.setState({ count: this.state.count + 1 });
+      this.fetchMyConsultations();
+    }, 1000);
 
     this.jwt = this.props.route.params.jwt;
 
@@ -32,10 +38,21 @@ export default class EditConsultationScreen extends Component {
         fontWeight: 'bold',
         fontSize: 24,
       },
-      headerBackTitle: 'Nazad',
     });
 
     this.fetchMyConsultations();
+  }
+
+  componentDidMount() {
+    const { navigation } = this.props;
+    this.focusListener = navigation.addListener('didFocus', () => {
+      this.setState({ count: 0 });
+    });
+  }
+
+  componentWillUnmount() {
+    // this.focusListener.remove();
+    clearTimeout(this.t);
   }
 
   fetchMyConsultations() {
@@ -70,11 +87,24 @@ export default class EditConsultationScreen extends Component {
     if (value == 'Č') {
       convertedDay = 'Četvrtak';
     }
-    if (value == 'PK') {
+    if (value == 'PT') {
       convertedDay = 'Petak';
     }
 
     return convertedDay;
+  }
+
+  convertDate(value) {
+    var date = new Date(value);
+
+    return (
+      date.getDate() +
+      '. ' +
+      (date.getMonth() + 1) +
+      '. ' +
+      date.getFullYear() +
+      '.'
+    );
   }
 
   render() {
@@ -103,22 +133,39 @@ export default class EditConsultationScreen extends Component {
                 height: '80%',
               }}
               renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => {}}>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.props.navigation.navigate('EditSpecificConsultation', {
+                      jwt: this.jwt,
+                      item: item,
+                    });
+                  }}
+                >
                   <Card style={styles.cardStyle}>
                     <View style={styles.topView}>
-                      <Text style={styles.dayTitle}>
-                        {this.whichDay(item.day)}
-                      </Text>
+                      {item.typeOFDate == 'day' ? (
+                        <Text style={styles.dayTitle}>
+                          {this.whichDay(item.day)}
+                        </Text>
+                      ) : (
+                        <Text style={styles.dayTitle}>
+                          {this.convertDate(item.date)}
+                        </Text>
+                      )}
                       <Text style={styles.time}>
                         {item.startTime}-{item.endTime}
                       </Text>
                     </View>
                     <View style={styles.midView}>
-                      <Text style={styles.midViewText}>
-                        {item.repeatEveryWeek
-                          ? 'Svake nedelje'
-                          : 'Ne ponavlja se'}
-                      </Text>
+                      {item.typeOFDate == 'day' ? (
+                        <Text style={styles.midViewText}>
+                          {item.repeatEveryWeek
+                            ? 'Svake nedelje'
+                            : 'Ne ponavlja se'}
+                        </Text>
+                      ) : (
+                        <Text style={styles.midViewText}></Text>
+                      )}
                       <Text style={styles.midViewText}>{item.place}</Text>
                     </View>
                     <View>
@@ -134,11 +181,11 @@ export default class EditConsultationScreen extends Component {
           <View style={{ height: '20%' }}>
             <Button
               style={styles.addButton}
-              onPress={() =>
+              onPress={() => {
                 this.props.navigation.navigate('AddConsultation', {
                   jwt: this.jwt,
-                })
-              }
+                });
+              }}
             >
               Dodajte konsultacije
             </Button>
