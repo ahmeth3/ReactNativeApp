@@ -23,19 +23,20 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { FlatList } from 'react-native-gesture-handler';
 
-export default class AddProject extends Component {
+export default class EditProject extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      name: '',
-      description: '',
-      mandatory: false,
-      numberOfAttendees: '',
-      points: '',
-    };
-
     this.subject = this.props.route.params.subject;
     this.jwt = this.props.route.params.jwt;
+    this.project = this.props.route.params.project;
+
+    this.state = {
+      name: this.project.name,
+      description: this.project.description,
+      mandatory: this.project.mandatory,
+      numberOfAttendees: this.project.numberOfAttendees,
+      points: this.project.points,
+    };
 
     props.navigation.setOptions({
       headerStyle: {
@@ -48,15 +49,14 @@ export default class AddProject extends Component {
         fontSize: 24,
       },
     });
-
-    this.addProject = this.addProject.bind(this);
   }
 
-  addProject() {
+  updateProject() {
     axios
-      .post(
-        `https://blooming-castle-17380.herokuapp.com/project/create/${this.props.route.params.jwt}`,
+      .patch(
+        `https://blooming-castle-17380.herokuapp.com/project/update/${this.jwt}`,
         {
+          _id: this.project._id,
           name: this.state.name,
           description: this.state.description,
           mandatory: this.state.mandatory,
@@ -71,7 +71,22 @@ export default class AddProject extends Component {
       })
       .catch((error) => {
         // Handle returned errors here
-        console.log(error);
+        this.props.navigation.goBack();
+      });
+  }
+
+  deleteProject() {
+    axios
+      .post(
+        `https://blooming-castle-17380.herokuapp.com/project/delete/${this.project._id}`
+      )
+      .then((response) => {
+        // Handle the JWT response here
+        this.props.navigation.goBack();
+      })
+      .catch((error) => {
+        // Handle returned errors here
+        this.props.navigation.goBack();
       });
   }
 
@@ -171,56 +186,72 @@ export default class AddProject extends Component {
                 />
               </View>
             </View>
-            <TouchableOpacity
-              style={styles.confirmButton}
-              onPress={() => {
-                if (
-                  this.state.name == '' ||
-                  this.state.description == '' ||
-                  this.state.numberOfAttendees == '' ||
-                  this.state.points == ''
-                ) {
-                  Alert.alert(
-                    'Greška!',
-                    'Popunite sva polja!',
-                    [{ text: 'OK' }],
-                    {
-                      cancelable: false,
-                    }
-                  );
-                } else if (
-                  this.state.numberOfAttendees.includes('.') ||
-                  this.state.numberOfAttendees.includes('-') ||
-                  this.state.numberOfAttendees.includes(',') ||
-                  this.state.numberOfAttendees.includes(' ')
-                ) {
-                  Alert.alert(
-                    'Greška!',
-                    'Broj učesnika mora biti ceo broj!',
-                    [{ text: 'OK' }],
-                    {
-                      cancelable: false,
-                    }
-                  );
-                } else if (
-                  this.state.points.includes('.') ||
-                  this.state.points.includes('-') ||
-                  this.state.points.includes(',') ||
-                  this.state.points.includes(' ')
-                ) {
-                  Alert.alert(
-                    'Greška!',
-                    'Broj poena mora biti ceo broj!',
-                    [{ text: 'OK' }],
-                    {
-                      cancelable: false,
-                    }
-                  );
-                } else this.addProject();
+            <View
+              style={{
+                flexDirection: 'row',
+                height: '10%',
+                justifyContent: 'space-between',
               }}
             >
-              <Text style={styles.confirmButtonText}>Dodajte</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={() => {
+                  if (
+                    this.state.name == '' ||
+                    this.state.description == '' ||
+                    this.state.numberOfAttendees == '' ||
+                    this.state.points == ''
+                  ) {
+                    Alert.alert(
+                      'Greška!',
+                      'Popunite sva polja!',
+                      [{ text: 'OK' }],
+                      {
+                        cancelable: false,
+                      }
+                    );
+                  } else if (
+                    this.state.numberOfAttendees.includes('.') ||
+                    this.state.numberOfAttendees.includes('-') ||
+                    this.state.numberOfAttendees.includes(',') ||
+                    this.state.numberOfAttendees.includes(' ')
+                  ) {
+                    Alert.alert(
+                      'Greška!',
+                      'Broj učesnika mora biti ceo broj!',
+                      [{ text: 'OK' }],
+                      {
+                        cancelable: false,
+                      }
+                    );
+                  } else if (
+                    this.state.points.includes('.') ||
+                    this.state.points.includes('-') ||
+                    this.state.points.includes(',') ||
+                    this.state.points.includes(' ')
+                  ) {
+                    Alert.alert(
+                      'Greška!',
+                      'Broj poena mora biti ceo broj!',
+                      [{ text: 'OK' }],
+                      {
+                        cancelable: false,
+                      }
+                    );
+                  } else this.updateProject();
+                }}
+              >
+                <Text style={styles.confirmButtonText}>Ažurirajte</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ ...styles.confirmButton, borderColor: 'red' }}
+                onPress={() => {
+                  this.deleteProject();
+                }}
+              >
+                <Text style={styles.confirmButtonText}>Izbrišite</Text>
+              </TouchableOpacity>
+            </View>
           </ScrollView>
         </KeyboardAvoidingView>
       </View>
@@ -281,8 +312,8 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   confirmButton: {
-    width: '60%',
-    height: '10%',
+    width: '45%',
+    height: '100%',
     alignSelf: 'center',
     marginTop: '10%',
     borderWidth: 1,

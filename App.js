@@ -40,6 +40,7 @@ export default class App extends Component {
     } else if (this.state.jwt) {
       return (
         <LoggedIn
+          newJWT={this.newJWT}
           deleteJWT={this.deleteJWT}
           jwt={this.state.jwt}
           account_type={this.state.account_type}

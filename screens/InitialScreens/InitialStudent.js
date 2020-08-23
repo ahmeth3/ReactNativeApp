@@ -56,6 +56,7 @@ export default class InitialStudent extends Component {
       )
       .then((response) => {
         console.log(response);
+        this.props.proba();
       })
       .catch((error) => {
         console.log(error);
@@ -215,7 +216,9 @@ export default class InitialStudent extends Component {
           <Button
             style={styles.checkButton}
             txtStyle={{ paddingTop: 15 }}
-            onPress={() => this.updateSubjects()}
+            onPress={() => {
+              this.updateSubjects();
+            }}
           >
             Izaberite predmete
           </Button>

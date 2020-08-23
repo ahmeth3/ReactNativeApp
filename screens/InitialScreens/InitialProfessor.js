@@ -249,6 +249,7 @@ export default class InitialProfessor extends Component {
       )
       .then((response) => {
         console.log(response);
+        this.props.proba();
       })
       .catch((error) => {
         console.log(error);

@@ -28,6 +28,7 @@ import {
   DrawerItem,
 } from '@react-navigation/drawer';
 import AddProject from './ProjectsScreens/AddProject';
+import EditProject from './ProjectsScreens/EditProject';
 
 const BottomTabs = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -38,6 +39,7 @@ export default class LoggedIn extends Component {
     super(props);
     this.state = { screenHandler: false, loading: true };
     this.checkIfFirstLogin = this.checkIfFirstLogin.bind(this);
+    this.switcher = this.switcher.bind(this);
 
     this.checkIfFirstLogin();
   }
@@ -52,7 +54,6 @@ export default class LoggedIn extends Component {
         )
         .then((response) => {
           if (response.data == 'Nema basic info') {
-            console.log('aaaaa');
             this.setState({ screenHandler: true, loading: false });
           } else this.setState({ loading: false });
         })
@@ -83,6 +84,10 @@ export default class LoggedIn extends Component {
     this.checkIfFirstLogin();
   }
 
+  switcher() {
+    this.setState({ screenHandler: false, loading: false });
+  }
+
   render() {
     if (this.state.loading) {
       return (
@@ -90,6 +95,15 @@ export default class LoggedIn extends Component {
           <Loading size={'large'} />
         </View>
       );
+    } else if (this.state.screenHandler) {
+      if (this.props.account_type == 'Profesor')
+        return (
+          <InitialProfessor jwt={this.props.jwt} proba={this.props.newJWT} />
+        );
+      if (this.props.account_type == 'Student')
+        return (
+          <InitialStudent jwt={this.props.jwt} proba={this.props.newJWT} />
+        );
     } else if (!this.state.loading && !this.state.screenHandler) {
       createSubjectsStack = () => (
         <Stack.Navigator>
@@ -135,6 +149,7 @@ export default class LoggedIn extends Component {
           <Stack.Screen name="MainProjects" component={MainProjectsScreen} />
           <Stack.Screen name="SpecificProjects" component={SpecificProjects} />
           <Stack.Screen name="AddProject" component={AddProject} />
+          <Stack.Screen name="EditProject" component={EditProject} />
         </Stack.Navigator>
       );
 
@@ -164,11 +179,6 @@ export default class LoggedIn extends Component {
           </Drawer.Navigator>
         </NavigationContainer>
       );
-    } else if (this.state.screenHandler) {
-      if (this.props.account_type == 'Profesor')
-        return <InitialProfessor jwt={this.props.jwt} />;
-      if (this.props.account_type == 'Student')
-        return <InitialStudent jwt={this.props.jwt} />;
     }
   }
 }

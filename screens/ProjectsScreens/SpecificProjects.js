@@ -200,10 +200,15 @@ export default class SpecificProjects extends Component {
         <TouchableOpacity
           style={styles.confirmButton}
           onPress={() => {
-            this.attend(item._id);
+            this.props.navigation.navigate('EditProject', {
+              jwt: this.jwt,
+              account_type: this.state.account_type,
+              subject: this.subject,
+              project: item,
+            });
           }}
         >
-          <Text style={styles.confirmButtonText}>Izmeni</Text>
+          <Text style={styles.confirmButtonText}>Izmenite</Text>
         </TouchableOpacity>
       );
     }
@@ -257,11 +262,12 @@ export default class SpecificProjects extends Component {
                 backgroundColor: 'rgb(27,41,69)',
                 borderRadius: 25,
                 width: '95%',
-                height: 180,
+                height: 200,
                 alignSelf: 'center',
                 marginBottom: 10,
                 paddingHorizontal: 10,
               }}
+              contentContainerStyle={{ flexGrow: 1 }}
             >
               <Text style={{ ...styles.dayTitle, marginBottom: 10 }}>
                 {item.name}
