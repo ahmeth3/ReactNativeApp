@@ -152,7 +152,12 @@ export default class EditConsultationScreen extends Component {
                     });
                   }}
                 >
-                  <Card style={styles.cardStyle}>
+                  <Card
+                    style={{
+                      ...styles.cardStyle,
+                      borderColor: item.valid ? 'orange' : 'red',
+                    }}
+                  >
                     <View style={styles.topView}>
                       {item.typeOFDate == 'day' ? (
                         <Text style={styles.dayTitle}>

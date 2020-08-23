@@ -228,7 +228,12 @@ export default class MainConsultationScreen extends Component {
                     });
                   }}
                 >
-                  <Card style={{ ...styles.cardStyle }}>
+                  <Card
+                    style={{
+                      ...styles.cardStyle,
+                      borderColor: item.valid ? 'orange' : 'red',
+                    }}
+                  >
                     {this.state.account_type == 'Student' ? (
                       <View>
                         <Text style={styles.dayTitle}>
