@@ -8,6 +8,7 @@ const Input = ({
   autoCapitalize,
   secureTextEntry,
   onChangeText,
+  contStyle,
 }) => {
   const { inputStyle, labelStyle, containerStyle } = styles;
 

@@ -12,6 +12,7 @@ import AddConsultationScreen from './ConsultationScreens/AddConsultationScreen';
 import ConsultationAttendees from './ConsultationScreens/ConsultationAttendees';
 
 import MainProjectsScreen from './ProjectsScreens/MainProjectsScreen';
+import SpecificProjects from './ProjectsScreens/SpecificProjects';
 
 import MySubjects from './SubjectsScreens/MySubjects';
 import EditProfessorSubjects from './SubjectsScreens/EditProfessorSubjects';
@@ -26,6 +27,7 @@ import {
   DrawerItemList,
   DrawerItem,
 } from '@react-navigation/drawer';
+import AddProject from './ProjectsScreens/AddProject';
 
 const BottomTabs = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -128,6 +130,14 @@ export default class LoggedIn extends Component {
         </Stack.Navigator>
       );
 
+      createProjectsStack = () => (
+        <Stack.Navigator>
+          <Stack.Screen name="MainProjects" component={MainProjectsScreen} />
+          <Stack.Screen name="SpecificProjects" component={SpecificProjects} />
+          <Stack.Screen name="AddProject" component={AddProject} />
+        </Stack.Navigator>
+      );
+
       return (
         <NavigationContainer>
           <Drawer.Navigator
@@ -145,11 +155,11 @@ export default class LoggedIn extends Component {
               );
             }}
           >
+            <Drawer.Screen name="Projects" children={createProjectsStack} />
             <Drawer.Screen
               name="Consultation"
               children={createConsultationsStack}
             />
-            <Drawer.Screen name="Projects" component={MainProjectsScreen} />
             <Drawer.Screen name="Subjects" children={createSubjectsStack} />
           </Drawer.Navigator>
         </NavigationContainer>
