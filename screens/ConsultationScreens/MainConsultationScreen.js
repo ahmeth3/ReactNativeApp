@@ -148,7 +148,7 @@ export default class MainConsultationScreen extends Component {
       })
       .catch((error) => {
         // Handle returned errors here
-        console.log(error.response);
+        console.log(error.response.data);
       });
   }
 
@@ -186,6 +186,17 @@ export default class MainConsultationScreen extends Component {
     );
   }
 
+  numberOfAttendees(attendees) {
+    var counter = 0;
+
+    for (var i = 0; i < attendees.length; i++) {
+      if (attendees[i] != null) {
+        counter++;
+      }
+    }
+    return ' ' + counter.toString();
+  }
+
   render() {
     if (this.state.loading) {
       return (
@@ -208,8 +219,24 @@ export default class MainConsultationScreen extends Component {
               style={{ width: '100%' }}
               contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
               renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => {}}>
-                  <Card style={styles.cardStyle}>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.props.navigation.navigate('ConsultationAttendees', {
+                      jwt: this.state.jwt,
+                      account_type: this.state.account_type,
+                      item: item,
+                    });
+                  }}
+                >
+                  <Card style={{ ...styles.cardStyle }}>
+                    {this.state.account_type == 'Student' ? (
+                      <View>
+                        <Text style={styles.dayTitle}>
+                          {item.professorName}
+                        </Text>
+                      </View>
+                    ) : null}
+
                     <View style={styles.topView}>
                       {item.typeOFDate == 'day' ? (
                         <Text style={styles.dayTitle}>
@@ -228,9 +255,7 @@ export default class MainConsultationScreen extends Component {
                     <View style={styles.midView}>
                       {item.typeOFDate == 'day' ? (
                         <Text style={styles.midViewText}>
-                          {item.repeatEveryWeek
-                            ? 'Svake nedelje'
-                            : 'Ne ponavlja se'}
+                          {item.repeatEveryWeek ? 'Svake nedelje' : ''}
                         </Text>
                       ) : (
                         <Text style={styles.midViewText}></Text>
@@ -240,7 +265,8 @@ export default class MainConsultationScreen extends Component {
                     </View>
                     <View>
                       <Text style={styles.midViewText}>
-                        Zauzetih termina: 2/4
+                        Zauzetih termina:
+                        {this.numberOfAttendees(item.attendees)}/4
                       </Text>
                     </View>
                   </Card>
@@ -265,7 +291,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   cardStyle: {
-    height: 90,
+    height: 100,
     padding: 10,
     borderColor: 'orange',
     borderRadius: 15,

@@ -107,6 +107,17 @@ export default class EditConsultationScreen extends Component {
     );
   }
 
+  numberOfAttendees(attendees) {
+    var counter = 0;
+
+    for (var i = 0; i < attendees.length; i++) {
+      if (attendees[i] != null) {
+        counter++;
+      }
+    }
+    return ' ' + counter.toString();
+  }
+
   render() {
     if (this.state.loading) {
       return (
@@ -170,7 +181,8 @@ export default class EditConsultationScreen extends Component {
                     </View>
                     <View>
                       <Text style={styles.midViewText}>
-                        Zauzetih termina: 2/4
+                        Zauzetih termina:
+                        {this.numberOfAttendees(item.attendees)}/4
                       </Text>
                     </View>
                   </Card>

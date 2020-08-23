@@ -438,7 +438,9 @@ export default class EditSpecificConsultationScreen extends Component {
                     }
 
                     var todaysDate = new Date();
+                    todaysDate.setHours(16);
                     var scheduledDate = new Date();
+                    scheduledDate.setHours(16);
 
                     if (todaysDate.getDay() < chosenDay) {
                       scheduledDate = scheduledDate.setDate(
@@ -451,10 +453,11 @@ export default class EditSpecificConsultationScreen extends Component {
                           (7 - todaysDate.getDay())
                       );
                     } else if (todaysDate.getDay() == chosenDay) {
-                      scheduledDate = scheduledDate.setDate(
-                        todaysDate.getDate()
-                      );
-                      var formattedDate = new Date(scheduledDate);
+                      // scheduledDate = scheduledDate.setDate(
+                      //   todaysDate.getDate()
+                      // );
+
+                      var thisMoment = new Date();
 
                       var chosenStartTime = this.state.timeStart;
                       chosenStartTime = chosenStartTime.split(':');
@@ -463,8 +466,8 @@ export default class EditSpecificConsultationScreen extends Component {
 
                       if (
                         chosenHour * 60 + chosenMinutes <
-                        parseInt(formattedDate.getHours()) * 60 +
-                          parseInt(formattedDate.getMinutes())
+                        parseInt(thisMoment.getHours()) * 60 +
+                          parseInt(thisMoment.getMinutes())
                       ) {
                         scheduledDate = todaysDate.setDate(
                           todaysDate.getDate() + 7
@@ -475,6 +478,8 @@ export default class EditSpecificConsultationScreen extends Component {
                     var formattedDate = new Date(scheduledDate);
 
                     formattedDate.setUTCHours(0, 0, 0, 0);
+
+                    console.log(formattedDate);
                     this.setState({ DoBPost: formattedDate }, () => {
                       this.updateConsultation();
                       // console.log(this.state);

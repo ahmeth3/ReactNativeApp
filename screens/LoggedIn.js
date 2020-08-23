@@ -9,6 +9,7 @@ import MainConsultationScreen from './ConsultationScreens/MainConsultationScreen
 import EditConsultationScreen from './ConsultationScreens/EditConsulationScreen';
 import EditSpecificConsultationScreen from './ConsultationScreens/EditSpecificConsultationScreen';
 import AddConsultationScreen from './ConsultationScreens/AddConsultationScreen';
+import ConsultationAttendees from './ConsultationScreens/ConsultationAttendees';
 
 import MainProjectsScreen from './ProjectsScreens/MainProjectsScreen';
 
@@ -119,6 +120,10 @@ export default class LoggedIn extends Component {
           <Stack.Screen
             name="AddConsultation"
             component={AddConsultationScreen}
+          />
+          <Stack.Screen
+            name="ConsultationAttendees"
+            component={ConsultationAttendees}
           />
         </Stack.Navigator>
       );
